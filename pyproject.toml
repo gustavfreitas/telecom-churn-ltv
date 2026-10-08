@@ -1,0 +1,15 @@
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]          # permite `from src...` nos testes
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"  # menor versão testada no CI
+
+[tool.ruff.lint]
+# E/W: pycodestyle | F: pyflakes | I: isort | B: bugbear | UP: pyupgrade
+select = ["E", "W", "F", "I", "B", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+# Notebooks: linhas longas e zip() sem strict são aceitáveis em código exploratório
+"notebooks/*.ipynb" = ["E501", "B905", "E402"]

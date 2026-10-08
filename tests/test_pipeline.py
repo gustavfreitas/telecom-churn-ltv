@@ -1,4 +1,4 @@
-#Teste de fumaça: o pipeline roda de ponta a ponta numa amostra pequena.
+"""Teste de fumaça: o pipeline roda de ponta a ponta numa amostra pequena."""
 
 import pytest
 
@@ -13,7 +13,7 @@ from src.regression import executar_regressao
 
 @pytest.fixture()
 def saidas_temporarias(tmp_path, monkeypatch):
-    #Redireciona figuras e modelos para a pasta temporária do teste.
+    """Redireciona figuras e modelos para a pasta temporária do teste."""
     monkeypatch.setattr("src.evaluation.FIGURAS_DIR", tmp_path / "figuras")
     monkeypatch.setattr("src.regression.MODELOS_DIR", tmp_path / "modelos")
     monkeypatch.setattr("src.classification.MODELOS_DIR", tmp_path / "modelos")

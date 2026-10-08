@@ -1,4 +1,4 @@
-#Executa a etapa de regressão. Rode da raiz: python -m scripts.train_regression.
+"""Executa a etapa de regressão. Rode da raiz: python -m scripts.train_regression"""
 
 from src.data import carregar_e_limpar
 from src.evaluation import salvar_metricas

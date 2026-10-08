@@ -1,4 +1,4 @@
-# Configurações centrais: caminhos, seed e listas de colunas.
+"""Configurações centrais: caminhos, seed e listas de colunas."""
 
 from pathlib import Path
 
@@ -13,11 +13,20 @@ METRICAS_PATH = RAIZ / "reports" / "metrics.json"
 RANDOM_STATE = 42
 
 SERVICOS_INTERNET = [
-    "OnlineSecurity", "OnlineBackup", "DeviceProtection",
-    "TechSupport", "StreamingTV", "StreamingMovies",
+    "OnlineSecurity",
+    "OnlineBackup",
+    "DeviceProtection",
+    "TechSupport",
+    "StreamingTV",
+    "StreamingMovies",
 ]
 COLUNAS_BINARIAS = [
-    "gender", "Partner", "Dependents", "PhoneService",
-    "PaperlessBilling", "MultipleLines", *SERVICOS_INTERNET,
+    "gender",
+    "Partner",
+    "Dependents",
+    "PhoneService",
+    "PaperlessBilling",
+    "MultipleLines",
+    *SERVICOS_INTERNET,
 ]
 COLS_CAT = ["InternetService", "Contract", "PaymentMethod"]

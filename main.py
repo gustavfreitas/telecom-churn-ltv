@@ -1,4 +1,4 @@
-#Ponto de entrada: roda regressão e classificação. Uso: python main.py
+"""Ponto de entrada: roda regressão e classificação. Uso: python main.py"""
 
 from scripts.train_classification import main as rodar_classificacao
 from scripts.train_regression import main as rodar_regressao

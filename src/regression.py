@@ -1,4 +1,4 @@
-# Regressão Linear: prever MonthlyCharges.
+"""Regressão Linear: prever MonthlyCharges."""
 
 import joblib
 import matplotlib.pyplot as plt
@@ -20,7 +20,7 @@ COLS_NUM = ["tenure"]
 
 
 def avaliar_regressao(y_true, y_pred) -> dict:
-    #Calcula MAE, RMSE e R².
+    """Calcula MAE, RMSE e R²."""
     return {
         "MAE": float(mean_absolute_error(y_true, y_pred)),
         "RMSE": float(np.sqrt(mean_squared_error(y_true, y_pred))),
@@ -29,7 +29,7 @@ def avaliar_regressao(y_true, y_pred) -> dict:
 
 
 def executar_regressao(df: pd.DataFrame) -> dict:
-    #Treina, avalia, salva gráficos e modelo. Retorna as métricas.
+    """Treina, avalia, salva gráficos e modelo. Retorna as métricas."""
     y = df["MonthlyCharges"]
     X = df.drop(columns=COLS_EXCLUIDAS)
     X_tr, X_te, y_tr, y_te = train_test_split(
@@ -47,9 +47,7 @@ def executar_regressao(df: pd.DataFrame) -> dict:
 
     metricas = {
         "linear_teste": avaliar_regressao(y_te, pred),
-        "baseline_media": avaliar_regressao(
-            y_te, np.full(len(y_te), y_tr.mean())
-        ),
+        "baseline_media": avaliar_regressao(y_te, np.full(len(y_te), y_tr.mean())),
     }
     cv_r2 = cross_val_score(pipe, X, y, cv=5, scoring="r2")
     metricas["r2_cv5"] = {"media": float(cv_r2.mean()), "desvio": float(cv_r2.std())}
