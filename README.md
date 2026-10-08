@@ -5,7 +5,7 @@
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-pipeline-orange)
 ![XGBoost](https://img.shields.io/badge/XGBoost-classifier-green)
-![Tests](https://img.shields.io/badge/tests-18%20passing-brightgreen)
+![CI](https://github.com/SEU-USUARIO/telco-churn-ml/actions/workflows/ci.yml/badge.svg)
 
 ## 🎯 Resumo do projeto
 
@@ -125,6 +125,7 @@ A EDA pode ser reexecutada abrindo `notebooks/01_eda.ipynb` no Jupyter ou no VS 
 
 - Código modular com PEP 8, verificado pelo `ruff`.
 - **Pipelines do scikit-learn** impedem vazamento de dados entre treino e teste.
+- **Integração contínua (GitHub Actions):** a cada push e pull request rodam `ruff` (lint e formatação) e `pytest` em Python 3.10 e 3.12.
 - **18 testes automatizados** cobrem a limpeza dos dados, o pré-processamento, a exclusão de colunas com vazamento e a execução ponta a ponta numa amostra.
 
 ## 🔭 Próximos passos
@@ -132,7 +133,6 @@ A EDA pode ser reexecutada abrindo `notebooks/01_eda.ipynb` no Jupyter ou no VS 
 - Otimizar o limiar de decisão por custo de negócio (custo de contato × valor do cliente).
 - Explicações por cliente com SHAP.
 - Ajuste de hiperparâmetros (Optuna) e calibração de probabilidades.
-- Integração contínua (GitHub Actions) rodando `ruff` e `pytest`.
 
 ## 📚 Dados
 
