@@ -5,7 +5,7 @@
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-pipeline-orange)
 ![XGBoost](https://img.shields.io/badge/XGBoost-classifier-green)
-![CI](https://github.com/SEU-USUARIO/telco-churn-ml/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/gustavfreitas/telco-churn-ml/actions/workflows/ci.yml/badge.svg)
 
 ## 🎯 Resumo do projeto
 
