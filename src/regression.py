@@ -1,4 +1,4 @@
-"""Regressão Linear: prever MonthlyCharges."""
+# Regressão Linear: prever MonthlyCharges.
 
 import joblib
 import matplotlib.pyplot as plt
@@ -20,7 +20,7 @@ COLS_NUM = ["tenure"]
 
 
 def avaliar_regressao(y_true, y_pred) -> dict:
-    """Calcula MAE, RMSE e R²."""
+    #Calcula MAE, RMSE e R².
     return {
         "MAE": float(mean_absolute_error(y_true, y_pred)),
         "RMSE": float(np.sqrt(mean_squared_error(y_true, y_pred))),
@@ -29,7 +29,7 @@ def avaliar_regressao(y_true, y_pred) -> dict:
 
 
 def executar_regressao(df: pd.DataFrame) -> dict:
-    """Treina, avalia, salva gráficos e modelo. Retorna as métricas."""
+    #Treina, avalia, salva gráficos e modelo. Retorna as métricas.
     y = df["MonthlyCharges"]
     X = df.drop(columns=COLS_EXCLUIDAS)
     X_tr, X_te, y_tr, y_te = train_test_split(

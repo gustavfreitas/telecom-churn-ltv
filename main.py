@@ -1,13 +1,12 @@
-from src.data import carregar_e_limpar
-from src.regressao import executar_regressao
-from src.classificacao import executar_classificacao
-from src.config import DATA_PATH
+#Ponto de entrada: roda regressão e classificação. Uso: python main.py
+
+from scripts.train_classification import main as rodar_classificacao
+from scripts.train_regression import main as rodar_regressao
 
 
 def main() -> None:
-    df = carregar_e_limpar(DATA_PATH)
-    executar_regressao(df)
-    executar_classificacao(df)
+    rodar_regressao()
+    rodar_classificacao()
 
 
 if __name__ == "__main__":

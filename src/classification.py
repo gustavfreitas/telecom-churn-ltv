@@ -1,4 +1,4 @@
-"""XGBoost Classifier: prever Churn (com baseline de Regressão Logística)."""
+# XGBoost Classifier: prever Churn (com baseline de Regressão Logística).
 
 from dataclasses import dataclass
 

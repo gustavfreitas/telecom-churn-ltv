@@ -1,4 +1,4 @@
-"""Configurações centrais: caminhos, seed e listas de colunas."""
+# Configurações centrais: caminhos, seed e listas de colunas.
 
 from pathlib import Path
 

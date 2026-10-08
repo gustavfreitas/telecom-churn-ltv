@@ -1,4 +1,4 @@
-"""Carga e limpeza do dataset Telco Customer Churn."""
+#Carga e limpeza do dataset Telco Customer Churn.
 
 from pathlib import Path
 
@@ -8,7 +8,7 @@ from src.config import COLUNAS_BINARIAS, DATA_PATH, SERVICOS_INTERNET
 
 
 def carregar_e_limpar(caminho: Path = DATA_PATH) -> pd.DataFrame:
-    """Lê o CSV, corrige tipos, trata nulos e cria novas features."""
+    #Lê o CSV, corrige tipos, trata nulos e cria novas features.
     df = pd.read_csv(caminho)
 
     # TotalCharges vem como texto; 11 linhas são strings vazias (clientes com

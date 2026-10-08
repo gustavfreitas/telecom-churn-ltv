@@ -1,6 +1,5 @@
-"""Executa classificação + interpretabilidade.
-Rode da raiz: python -m scripts.train_classification
-"""
+#Executa classificação + interpretabilidade.
+#Rode da raiz: python -m scripts.train_classification.
 
 from src.classification import executar_classificacao
 from src.data import carregar_e_limpar
