@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 import joblib
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
@@ -32,7 +33,12 @@ class ResultadoClassificacao:
     pipeline: Pipeline
     X_te: pd.DataFrame
     y_te: pd.Series
-    proba: pd.Series
+    proba: np.ndarray
+    # Usados na análise de negócio (calibração com previsões out-of-fold do treino)
+    X_tr: pd.DataFrame
+    y_tr: pd.Series
+    pipeline_log: Pipeline
+    proba_log: np.ndarray
 
 
 def executar_classificacao(df: pd.DataFrame) -> ResultadoClassificacao:
@@ -101,6 +107,8 @@ def executar_classificacao(df: pd.DataFrame) -> ResultadoClassificacao:
         if nome == "xgboost":
             print(classification_report(y_te, pred, target_names=["Ficou", "Cancelou"]))
             proba_xgb, pred_xgb = proba, pred
+        else:
+            proba_log = proba
 
     # Gráficos do XGBoost: matriz de confusão e ROC
     fig, ax = plt.subplots(1, 2, figsize=(12, 4.5))
@@ -115,4 +123,6 @@ def executar_classificacao(df: pd.DataFrame) -> ResultadoClassificacao:
 
     MODELOS_DIR.mkdir(parents=True, exist_ok=True)
     joblib.dump(pipe_xgb, MODELOS_DIR / "xgboost_churn.joblib")
-    return ResultadoClassificacao(metricas, pipe_xgb, X_te, y_te, proba_xgb)
+    return ResultadoClassificacao(
+        metricas, pipe_xgb, X_te, y_te, proba_xgb, X_tr, y_tr, pipe_log, proba_log
+    )

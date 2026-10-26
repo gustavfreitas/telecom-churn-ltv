@@ -34,5 +34,139 @@
       "churn_recall": 0.7887700534759359,
       "churn_f1": 0.6178010471204188
     }
+  },
+  "auditoria_cobranca": {
+    "clientes": 7043,
+    "residuo_abs_mediano": 0.6136438638558097,
+    "residuo_abs_maximo": 4.844093599241901,
+    "clientes_com_desvio_acima_de_3": 72,
+    "clientes_com_desvio_acima_de_5": 0
+  },
+  "negocio": {
+    "premissas": {
+      "horizonte_meses": 12,
+      "taxa_sucesso": 0.3,
+      "custo_acao": 20.0
+    },
+    "calibracao": {
+      "churn_real_teste": 0.2654364797728886,
+      "prob_media_xgb_bruta": 0.4008595943450928,
+      "prob_media_xgb_calibrada": 0.26670062214594414,
+      "brier_xgb_bruto": 0.16239626705646515,
+      "brier_xgb_calibrado": 0.1352315853933296,
+      "brier_log_bruta": 0.16853584141665087,
+      "brier_log_calibrada": 0.13811962450274262
+    },
+    "estrategias": [
+      {
+        "estrategia": "Não contatar ninguém",
+        "contatados": 0,
+        "cancelamentos_alcancados": 0,
+        "beneficio_total": 0.0,
+        "beneficio_por_1000": 0.0
+      },
+      {
+        "estrategia": "Contatar todos",
+        "contatados": 1409,
+        "cancelamentos_alcancados": 374,
+        "beneficio_total": 69793.64,
+        "beneficio_por_1000": 49534.166075230656
+      },
+      {
+        "estrategia": "Regra antiga: probabilidade bruta do XGBoost ≥ 0,5",
+        "contatados": 573,
+        "cancelamentos_alcancados": 296,
+        "beneficio_total": 67209.54,
+        "beneficio_por_1000": 47700.1703335699
+      },
+      {
+        "estrategia": "XGBoost calibrado + ganho esperado > 0",
+        "contatados": 882,
+        "cancelamentos_alcancados": 351,
+        "beneficio_total": 77093.28,
+        "beneficio_por_1000": 54714.88999290277
+      },
+      {
+        "estrategia": "Regressão Logística calibrada + ganho esperado > 0",
+        "contatados": 849,
+        "cancelamentos_alcancados": 341,
+        "beneficio_total": 76862.28,
+        "beneficio_por_1000": 54550.94393186657
+      },
+      {
+        "estrategia": "Oráculo (só quem cancelaria; limite teórico)",
+        "contatados": 374,
+        "cancelamentos_alcancados": 374,
+        "beneficio_total": 90493.64,
+        "beneficio_por_1000": 64225.43647977288
+      }
+    ],
+    "sensibilidade_custo": [
+      {
+        "custo_acao": 5,
+        "contatados_modelo": 1116,
+        "modelo": 64843.17955997161,
+        "regra_antiga": 53800.241305890704,
+        "todos": 64534.16607523066
+      },
+      {
+        "custo_acao": 20,
+        "contatados_modelo": 882,
+        "modelo": 54714.88999290277,
+        "regra_antiga": 47700.170333569906,
+        "todos": 49534.16607523066
+      },
+      {
+        "custo_acao": 50,
+        "contatados_modelo": 631,
+        "modelo": 38013.62668559262,
+        "regra_antiga": 35500.02838892832,
+        "todos": 19534.16607523066
+      },
+      {
+        "custo_acao": 100,
+        "contatados_modelo": 415,
+        "modelo": 19665.535841022,
+        "regra_antiga": 15166.458481192336,
+        "todos": -30465.833924769344
+      },
+      {
+        "custo_acao": 200,
+        "contatados_modelo": 118,
+        "modelo": 2637.2604684173175,
+        "regra_antiga": -25500.681334279638,
+        "todos": -130465.83392476937
+      }
+    ],
+    "sensibilidade_taxa": [
+      {
+        "taxa_sucesso": 0.1,
+        "contatados_modelo": 586,
+        "modelo": 11009.155429382545,
+        "regra_antiga": 10477.771469127041,
+        "todos": 3178.0553584102217
+      },
+      {
+        "taxa_sucesso": 0.2,
+        "contatados_modelo": 777,
+        "modelo": 32664.52803406672,
+        "regra_antiga": 29088.970901348475,
+        "todos": 26356.110716820443
+      },
+      {
+        "taxa_sucesso": 0.3,
+        "contatados_modelo": 882,
+        "modelo": 54714.88999290277,
+        "regra_antiga": 47700.170333569906,
+        "todos": 49534.16607523066
+      },
+      {
+        "taxa_sucesso": 0.5,
+        "contatados_modelo": 966,
+        "modelo": 99767.9914833215,
+        "regra_antiga": 84922.56919801277,
+        "todos": 95890.2767920511
+      }
+    ]
   }
 }

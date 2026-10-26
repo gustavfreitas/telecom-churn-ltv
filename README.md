@@ -30,7 +30,7 @@ O objetivo não é apenas "rodar algoritmos", mas extrair **insights acionáveis
 - O desbalanceamento (~2,77 não-churn para cada churn) é tratado com `scale_pos_weight`.
 - A validação cruzada é feita com `Pipeline`, de modo que o pré-processamento é ajustado dentro de cada fold, sem vazamento.
 - **Leitura honesta:** o XGBoost **empata** com a Regressão Logística neste dataset. O sinal está em poucas variáveis com relações quase lineares (contrato, tempo de casa, internet), então um modelo mais complexo não traz ganho mensurável. O XGBoost fica como demonstração da técnica e fonte de importâncias de variável.
-- O limiar de decisão é 0,5 (recall alto, precision moderada). Em produção, o limiar deve ser definido pelo custo da ação de retenção versus o valor do cliente retido.
+- As métricas acima usam o corte padrão de 0,5 (recall alto, precision moderada). A decisão de **quem contatar** é feita por custo, na seção seguinte.
 
 ![Matriz de confusão e curva ROC](reports/figures/classificacao_confusao_roc.png)
 
@@ -46,6 +46,27 @@ R² em 5-fold CV: 0,999.
 ![Coeficientes e real vs. previsto](reports/figures/regressao_coef_real_previsto.png)
 
 **Como ler este resultado:** a mensalidade da Telco é praticamente **aditiva**: cada serviço soma um valor quase fixo. Os coeficientes recuperam essa tabela de preços (Fibra ótica ≈ +US$ 25; telefonia ≈ +20; cada streaming ≈ +10; segurança, backup, proteção de dispositivo, suporte e múltiplas linhas ≈ +5 cada). O R² próximo de 1 significa que o modelo **redescobre a tabela de preços**, e não que prevê algo difícil. O valor prático está nos **resíduos**: clientes com cobrança muito diferente da prevista são candidatos a auditoria de faturamento ou a revisão de desconto.
+
+### Decisão por custo: quem vale a pena contatar
+
+Prever churn só vira dinheiro quando se decide **quem receber uma ação de retenção**. O projeto transforma a probabilidade em decisão com uma regra de ganho esperado:
+
+```
+contatar se   prob_calibrada × taxa_de_sucesso × (mensalidade × 12) − custo_da_ação  >  0
+```
+
+- **Calibração antes da decisão.** O `scale_pos_weight` do XGBoost infla as probabilidades (no teste, a média prevista fica bem acima do churn real de 26,5%). Usar essa probabilidade numa conta de dinheiro superestima o ganho. Por isso as probabilidades são calibradas (Platt) com previsões *out-of-fold* do **treino**; a calibração é monotônica, então a AUC não muda.
+- **Sem vazamento.** Calibrador ajustado só no treino; o teste é usado uma única vez, para medir.
+- **Premissas explícitas e ilustrativas** (`src/config.py`): sucesso da ação 30%, custo de US$ 20 por contato, horizonte de 12 meses. Não vêm de uma operação real.
+- **Comparação de estratégias** no teste: não contatar ninguém, contatar todos, a regra antiga (probabilidade bruta ≥ 0,5), XGBoost calibrado, Regressão Logística calibrada e um oráculo (limite teórico).
+- **Sensibilidade:** o resultado é recalculado variando custo da ação e taxa de sucesso, para mostrar em que cenários a regra por custo compensa e em quais ela perde.
+
+Os números gerados ficam em [`reports/resultados_negocio.md`](reports/resultados_negocio.md) após rodar `python main.py`.
+
+### Fila de retenção e auditoria de cobrança
+
+- [`reports/fila_retencao.csv`](reports/fila_retencao.csv): clientes do teste ordenados por ganho esperado, com probabilidade calibrada, receita em risco, a decisão (`contatar`) e os **3 principais motivos por cliente** (SHAP agregado por variável original, ex.: `Contract=Month-to-month (+0,93)`). Os valores SHAP indicam direção e peso relativo no modelo, não causa. O CSV usa `;` e vírgula decimal para abrir direto no Excel brasileiro.
+- [`reports/auditoria_cobranca.csv`](reports/auditoria_cobranca.csv): os clientes cuja mensalidade mais destoa do que o modelo de preços prevê (resíduo por validação cruzada). É uma lista de candidatos a revisão de faturamento ou desconto, não prova de erro.
 
 ## 🔍 Insights de negócio
 
@@ -69,13 +90,14 @@ As variáveis mais importantes são `tenure`, `Contract` (2 anos e 1 ano), `Inte
 - **Variáveis correlacionadas dividem importância.** `tenure`, `TotalCharges` e `Contract` são relacionadas, então o ranking individual da *permutation importance* subestima cada uma. Por isso o projeto mostra *gain* e *permutation* lado a lado.
 - **R² ≈ 0,999 na regressão reflete a precificação aditiva** do dataset, e não uma dificuldade resolvida por ML. `TotalCharges` e `n_servicos_internet` foram excluídas da regressão para evitar vazamento e colinearidade.
 - **Sem dados comportamentais.** Sem uso da rede, chamados de suporte ou atrasos de pagamento, o teto de AUC do dataset gira em torno de 0,85, e não há ganho garantido com modelos mais complexos.
-- **Limiar fixo em 0,5.** Não foi otimizado por custo de negócio.
+- **Premissas de custo são ilustrativas.** Taxa de sucesso, custo da ação e horizonte devem vir da operação; a análise de sensibilidade mostra o quanto a conclusão depende delas. A "receita em risco" ignora margem, desconto e probabilidade de o cliente ficar de qualquer forma.
+- **Calibração com poucos dados.** ~5,6 mil clientes de treino bastam para um ajuste de dois parâmetros, mas as probabilidades continuam estimativas.
 - **Dataset estático** de ~7 mil clientes: não captura sazonalidade nem mudanças de comportamento ao longo do tempo.
 
 ## 🗂️ Estrutura do projeto
 
 ```
-ML/
+telecom-churn-ltv/
 ├── data/raw/                 # CSV original (imutável)
 ├── notebooks/
 │   └── 01_eda.ipynb          # análise exploratória (executado)
@@ -85,14 +107,18 @@ ML/
 │   ├── features.py           # pré-processamento (One-Hot, escala)
 │   ├── regression.py         # Regressão Linear
 │   ├── classification.py     # XGBoost + baseline logístico
-│   ├── interpretability.py   # importâncias, churn por segmento, lista de risco
+│   ├── interpretability.py   # importâncias, churn por segmento, SHAP por cliente
+│   ├── negocio.py            # calibração, ganho esperado, estratégias, fila de retenção
 │   └── evaluation.py         # salvar figuras e métricas
 ├── scripts/                  # pontos de entrada
-├── tests/                    # 18 testes (dados, features, pipeline)
+├── tests/                    # testes (dados, features, pipeline, negócio)
 ├── models/                   # modelos treinados (.joblib, ignorados pelo Git)
 ├── reports/
 │   ├── figures/              # gráficos usados neste README
-│   └── metrics.json          # métricas da última execução
+│   ├── metrics.json          # métricas da última execução
+│   ├── resultados_negocio.md # estratégias de retenção e sensibilidade
+│   ├── fila_retencao.csv     # quem contatar, com motivos
+│   └── auditoria_cobranca.csv# mensalidades fora do padrão
 └── main.py                   # roda regressão + classificação
 ```
 
@@ -126,13 +152,17 @@ A EDA pode ser reexecutada abrindo `notebooks/01_eda.ipynb` no Jupyter ou no VS 
 - Código modular com PEP 8, verificado pelo `ruff`.
 - **Pipelines do scikit-learn** impedem vazamento de dados entre treino e teste.
 - **Integração contínua (GitHub Actions):** a cada push e pull request rodam `ruff` (lint e formatação) e `pytest` em Python 3.10 e 3.12.
-- **18 testes automatizados** cobrem a limpeza dos dados, o pré-processamento, a exclusão de colunas com vazamento e a execução ponta a ponta numa amostra.
+- **Testes automatizados** cobrem a limpeza dos dados, o pré-processamento, a exclusão de colunas com vazamento, a execução ponta a ponta, as contas de ganho esperado (conferidas à mão), a calibração, a fila de retenção e a auditoria.
 
 ## 🔭 Próximos passos
 
-- Otimizar o limiar de decisão por custo de negócio (custo de contato × valor do cliente).
-- Explicações por cliente com SHAP.
-- Ajuste de hiperparâmetros (Optuna) e calibração de probabilidades.
+- Substituir as premissas ilustrativas por valores da operação (e testar a taxa de sucesso com um A/B).
+- Ajuste de hiperparâmetros (Optuna).
+- Validar a fila de retenção em dados de períodos posteriores (split temporal).
+
+## 📄 Licença
+
+MIT, veja [LICENSE](LICENSE).
 
 ## 📚 Dados
 

@@ -7,6 +7,11 @@ import pandas as pd
 from src.config import COLUNAS_BINARIAS, DATA_PATH, SERVICOS_INTERNET
 
 
+def carregar_ids(caminho: Path = DATA_PATH) -> pd.Series:
+    """customerID de cada linha, com o mesmo índice do DataFrame limpo."""
+    return pd.read_csv(caminho, usecols=["customerID"])["customerID"]
+
+
 def carregar_e_limpar(caminho: Path = DATA_PATH) -> pd.DataFrame:
     """Lê o CSV, corrige tipos, trata nulos e cria novas features."""
     df = pd.read_csv(caminho)
