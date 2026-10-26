@@ -61,12 +61,27 @@ contatar se   prob_calibrada × taxa_de_sucesso × (mensalidade × 12) − custo
 - **Comparação de estratégias** no teste: não contatar ninguém, contatar todos, a regra antiga (probabilidade bruta ≥ 0,5), XGBoost calibrado, Regressão Logística calibrada e um oráculo (limite teórico).
 - **Sensibilidade:** o resultado é recalculado variando custo da ação e taxa de sucesso, para mostrar em que cenários a regra por custo compensa e em quais ela perde.
 
-Os números gerados ficam em [`reports/resultados_negocio.md`](reports/resultados_negocio.md) após rodar `python main.py`.
+**Resultado no teste (1.409 clientes; US$ por 1.000 clientes, premissas acima):**
+
+| Estratégia | Contatados | Benefício |
+|---|---:|---:|
+| Não contatar ninguém | 0 | 0 |
+| Regra antiga (prob. bruta ≥ 0,5) | 573 | 47.700 |
+| Contatar todos | 1.409 | 49.534 |
+| **XGBoost calibrado + ganho esperado > 0** | 882 | **54.715** |
+| Regressão Logística calibrada + ganho esperado > 0 | 849 | 54.551 |
+| Oráculo (limite teórico) | 374 | 64.225 |
+
+- A calibração leva a probabilidade média prevista de 40,1% para 26,7% (churn real: 26,5%) e reduz o Brier de 0,162 para 0,135.
+- A decisão por ganho esperado rende cerca de **15% a mais que a regra antiga** e cerca de **10% a mais que contatar todo mundo**. Com custo de ação baixo (US$ 5), contatar todos empata com o modelo (64.534 contra 64.843): o modelo só se paga quando a ação custa o bastante para valer a pena escolher.
+- **Quanto mais cara a ação, maior a vantagem:** com custo de US$ 200, a regra antiga já dá prejuízo (−25.501), contatar todos dá −130.466 e o modelo calibrado ainda fica positivo (2.637).
+- O modelo logístico calibrado chega a praticamente o mesmo resultado do XGBoost (54.551 contra 54.715), coerente com o empate de AUC.
+- Tabelas completas de sensibilidade (custo e taxa de sucesso) em [`reports/resultados_negocio.md`](reports/resultados_negocio.md). Todos esses valores dependem das premissas ilustrativas.
 
 ### Fila de retenção e auditoria de cobrança
 
-- [`reports/fila_retencao.csv`](reports/fila_retencao.csv): clientes do teste ordenados por ganho esperado, com probabilidade calibrada, receita em risco, a decisão (`contatar`) e os **3 principais motivos por cliente** (SHAP agregado por variável original, ex.: `Contract=Month-to-month (+0,93)`). Os valores SHAP indicam direção e peso relativo no modelo, não causa. O CSV usa `;` e vírgula decimal para abrir direto no Excel brasileiro.
-- [`reports/auditoria_cobranca.csv`](reports/auditoria_cobranca.csv): os clientes cuja mensalidade mais destoa do que o modelo de preços prevê (resíduo por validação cruzada). É uma lista de candidatos a revisão de faturamento ou desconto, não prova de erro.
+- [`reports/fila_retencao_teste.csv`](reports/fila_retencao_teste.csv): clientes do teste ordenados por ganho esperado, com probabilidade calibrada, receita em risco, a decisão (`contatar`) e os **3 principais motivos por cliente** (SHAP agregado por variável original, ex.: `Contract=Month-to-month (+0,93)`). Os valores SHAP indicam direção e peso relativo no modelo, não causa. O CSV usa `;` e vírgula decimal para abrir direto no Excel brasileiro.
+- [`reports/auditoria_cobranca.csv`](reports/auditoria_cobranca.csv): os clientes cuja mensalidade mais destoa do que o modelo de preços prevê (resíduo por validação cruzada). É uma lista de candidatos a revisão de faturamento ou desconto, não prova de erro. Neste dataset o modelo de preços é tão aditivo que o desvio mediano é de US$ 0,61 e o maior é de US$ 4,84 (72 clientes passam de US$ 3 e nenhum de US$ 5), então a lista é fraca como detector de erro de cobrança: serve mais para mostrar o método do que para apontar problemas reais.
 
 ## 🔍 Insights de negócio
 
@@ -117,7 +132,7 @@ telecom-churn-ltv/
 │   ├── figures/              # gráficos usados neste README
 │   ├── metrics.json          # métricas da última execução
 │   ├── resultados_negocio.md # estratégias de retenção e sensibilidade
-│   ├── fila_retencao.csv     # quem contatar, com motivos
+│   ├── fila_retencao_teste.csv     # quem contatar, com motivos
 │   └── auditoria_cobranca.csv# mensalidades fora do padrão
 └── main.py                   # roda regressão + classificação
 ```
