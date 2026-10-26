@@ -42,12 +42,8 @@ def main() -> None:
     )
     print("\n", neg.estrategias.round(1).to_string(index=False))
 
-    # Fila de retenção com os motivos de cada cliente (precisa do pacote shap)
+    # Fila de retenção com os motivos de cada cliente (SHAP nativo do XGBoost)
     motivos = motivos_por_cliente(res)
-    if motivos is None:
-        print(
-            "\nSHAP indisponível: instale com `pip install shap` para ver os motivos."
-        )
     salvar_fila(montar_fila_retencao(res, neg, carregar_ids(), motivos))
     print(f"\nFila de retenção salva em {config.FILA_PATH}")
 

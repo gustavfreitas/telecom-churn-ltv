@@ -80,7 +80,7 @@ contatar se   prob_calibrada × taxa_de_sucesso × (mensalidade × 12) − custo
 
 ### Fila de retenção e auditoria de cobrança
 
-- [`reports/fila_retencao_teste.csv`](reports/fila_retencao_teste.csv): clientes do teste ordenados por ganho esperado, com probabilidade calibrada, receita em risco, a decisão (`contatar`) e os **3 principais motivos por cliente** (SHAP agregado por variável original, ex.: `Contract=Month-to-month (+0,93)`). Os valores SHAP indicam direção e peso relativo no modelo, não causa. O CSV usa `;` e vírgula decimal para abrir direto no Excel brasileiro.
+- [`reports/fila_retencao_teste.csv`](reports/fila_retencao_teste.csv): clientes do teste ordenados por ganho esperado, com probabilidade calibrada, receita em risco, a decisão (`contatar`) e os **3 principais motivos por cliente** (SHAP nativo do XGBoost, agregado por variável original, ex.: `Contract=Month-to-month (+0,93)`). Os valores SHAP indicam direção e peso relativo no modelo, não causa. O CSV usa `;` e vírgula decimal para abrir direto no Excel brasileiro.
 - [`reports/auditoria_cobranca.csv`](reports/auditoria_cobranca.csv): os clientes cuja mensalidade mais destoa do que o modelo de preços prevê (resíduo por validação cruzada). É uma lista de candidatos a revisão de faturamento ou desconto, não prova de erro. Neste dataset o modelo de preços é tão aditivo que o desvio mediano é de US$ 0,61 e o maior é de US$ 4,84 (72 clientes passam de US$ 3 e nenhum de US$ 5), então a lista é fraca como detector de erro de cobrança: serve mais para mostrar o método do que para apontar problemas reais.
 
 ## 🔍 Insights de negócio

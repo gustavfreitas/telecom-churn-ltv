@@ -128,7 +128,6 @@ def test_salvar_fila_usa_formato_brasileiro(analise, df, tmp_path):
 
 
 def test_motivos_apontam_variaveis_reais(analise):
-    pytest.importorskip("shap")
     from src.interpretability import motivos_por_cliente
 
     res, _ = analise

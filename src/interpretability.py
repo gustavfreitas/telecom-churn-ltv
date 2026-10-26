@@ -78,26 +78,24 @@ def _formatar_valor(coluna: str, valor) -> str:
     return str(int(valor)) if float(valor).is_integer() else f"{valor:.2f}"
 
 
-def shap_por_coluna(res: ResultadoClassificacao) -> pd.DataFrame | None:
+def shap_por_coluna(res: ResultadoClassificacao) -> pd.DataFrame:
     """Contribuição SHAP de cada coluna original para o risco de cada cliente.
 
-    Soma as colunas do One-Hot de volta na variável de origem. Devolve None se o
-    pacote `shap` não estiver instalado (é uma dependência opcional).
+    Usa o TreeSHAP nativo do XGBoost (`pred_contribs`), que dá os mesmos valores
+    do pacote `shap` sem depender dele (o pacote tem incompatibilidades entre
+    versões do XGBoost). Soma as colunas do One-Hot de volta na variável de
+    origem. Escala: log-odds do modelo bruto.
     """
-    try:
-        import shap
-    except ImportError:
-        return None
+    import xgboost as xgb
+
     prep, modelo = res.pipeline["prep"], res.pipeline["modelo"]
     X_p = prep.transform(res.X_te)
-    valores = shap.TreeExplainer(modelo).shap_values(X_p)
-    tabela = pd.DataFrame(valores, index=res.X_te.index, columns=X_p.columns)
+    contribs = modelo.get_booster().predict(xgb.DMatrix(X_p), pred_contribs=True)
+    tabela = pd.DataFrame(contribs[:, :-1], index=res.X_te.index, columns=X_p.columns)
     return tabela.T.groupby(_coluna_original).sum().T
 
 
-def motivos_por_cliente(
-    res: ResultadoClassificacao, n_motivos: int = 3
-) -> pd.Series | None:
+def motivos_por_cliente(res: ResultadoClassificacao, n_motivos: int = 3) -> pd.Series:
     """Texto com as variáveis que mais empurram cada cliente para o cancelamento.
 
     Ex.: 'Contract=Month-to-month (+0,93); tenure=2 (+0,71)'. Os valores são
@@ -105,8 +103,6 @@ def motivos_por_cliente(
     peso relativo, não uma probabilidade.
     """
     shap_col = shap_por_coluna(res)
-    if shap_col is None:
-        return None
     textos = []
     for idx, linha in shap_col.iterrows():
         partes = []
